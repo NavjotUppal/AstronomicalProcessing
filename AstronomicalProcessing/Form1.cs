@@ -97,6 +97,7 @@ namespace AstronomicalProcessing
 
                 ShowArray(lowerBound,upperBound);
                 // Find the mid-point
+
                 midPoint = (lowerBound + upperBound) / 2;
                 if(upperBound<lowerBound)
                 {
