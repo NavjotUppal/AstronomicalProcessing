@@ -138,9 +138,7 @@ namespace AstronomicalProcessing
             }
             while (!flag) // Check “<” or “<=” Nav
             {
-
-<<<<<< 1.8
->>> master
+                ListBoxResults.Items.Clear();
                 midPoint = (lowerBound + upperBound) / 2;
                 if (upperBound < lowerBound)
                 {
@@ -377,6 +375,7 @@ namespace AstronomicalProcessing
             }
             else
             {
+                ListBoxSearchResults.Items.Clear();
                 // Sequentially searching through neutrinoChrono Stu
                 for (int i = 0; i < 24; i++)
                 {
