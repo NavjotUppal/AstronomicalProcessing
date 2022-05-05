@@ -139,8 +139,8 @@ namespace AstronomicalProcessing
             while (!flag) // Check “<” or “<=” Nav
             {
 
-                ListBoxResults.Items.Clear();
-                // Find the mid-point Nav
+<<<<<< 1.8
+>>> master
                 midPoint = (lowerBound + upperBound) / 2;
                 if (upperBound < lowerBound)
                 {
