@@ -488,10 +488,7 @@ namespace AstronomicalProcessing
         {
             toolTip_ButtonClearAll.SetToolTip(ButtonClearAll, "Click to Clear All the data");
         }
-        public void githubsucks()
-        {
-            //blah blah blah
-        }
+       
     }
 }
 
