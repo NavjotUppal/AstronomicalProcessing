@@ -10,81 +10,125 @@ using System.Windows.Forms;
 
 namespace AstronomicalProcessing
 {
-    
+
     public partial class Form1 : Form
     {
-        int[] neutrino = new int[24];
+        // Parallel array for Neutrino Interactions in chronological order Stu
+        int[] neutrinoChrono = new int[24];
+        // Parallel array for time periods in chronological order Stu
+        string[] timePeriodChrono = new string[24];
+
+        // Parallel array for neutrino interactions in ascending order Stu
+        int[] neutrinoAscend = new int[24];
+        // Parallel array for time periods in ascending order Stu
+        string[] timePeriodAscend = new string[24];
+
         public Form1()
         {
             InitializeComponent();
-          //  generateNeutrinoInteractions();
-        }
-        
-
-        private void generateNeutrinoInteractions()
-        {
-           
-            int max = 200;
-            //int min = 1;
-            Random random = new Random();
-            for (int i = 0; i < neutrino.Length; i++)
-            {
-                neutrino[i] = random.Next(max);
-                
-            }
-           // neutrino
-
         }
 
-        public void btnGetInteractions_Click(object sender, EventArgs e)
+        // Method to sort the Neutrion Interactions in to ascending order Nav
+        private void SortByNeutrinoInteraction()
         {
-            generateNeutrinoInteractions();
-            ListBoxInteractions.Items.Clear();
-            foreach (int nu in neutrino)
+            for (int i = 0; i < (neutrinoAscend.Length - 1); i++)
             {
-                ListBoxInteractions.Items.Add(nu.ToString() + " ");
-            }
-
-        }
-
-        public void btnSortInteractions_Click(object sender, EventArgs e)
-        {
-            ListBoxSort.Items.Clear();
-            if (ListBoxInteractions != null)
-            {
-                for(int i = 0;i<(neutrino.Length-1);i++)
+                for (int j = 0; j < (neutrinoAscend.Length - 1); j++)
                 {
-                    for(int j=0;j<(neutrino.Length-1);j++)
+                    if (neutrinoAscend[j + 1] < neutrinoAscend[j])
                     {
-                        if(neutrino[j+1]<neutrino[j])
-                        {
-                            int temp = neutrino[j];
-                            neutrino[j] = neutrino[j+1];
-                            neutrino[j+1] = temp;
+                        int temp = neutrinoAscend[j];
+                        neutrinoAscend[j] = neutrinoAscend[j + 1];
+                        neutrinoAscend[j + 1] = temp;
 
-                        }
+                        // Repeating the same array sort function to the parallel timePeriod array Stu
+                        string tempString = timePeriodAscend[j];
+                        timePeriodAscend[j] = timePeriodAscend[j + 1];
+                        timePeriodAscend[j + 1] = tempString;
                     }
                 }
-                foreach (int nu in neutrino)
-                {
-                   
-                    ListBoxSort.Items.Add(nu.ToString() + " ");
-                }
-
             }
+        }
+
+        // Method to update ListBox, takes ListBox as parameter Stu
+        // listBox = which List Box to be updated
+        // timePeriod = which Array to be added (chronological or ascending)
+        // neutrino = which Array to be added (chronological or ascending)
+        private void UpdateListBox(ListBox listBox, string[] timePeriod, int[] neutrino)
+        {
+            listBox.Items.Clear();
+            for (int i = 0; i < 24; i++)
+            {
+                listBox.Items.Add(timePeriod[i] + " " + neutrino[i].ToString());
+            }
+        }
+        // Method for generating array of neutrino interactions in chronological order Stu
+        // Generates a parallel array of neutrino interactions to be sorted in ascending order later Stu
+        private void GenerateNeutrinoInteractions()
+        {
+            int max = 100;
+            int min = 10;
+            Random random = new Random();
+            for (int i = 0; i < 24; i++)
+            {
+                int temp = random.Next(min, max);
+                neutrinoChrono[i] = temp;
+                neutrinoAscend[i] = temp;                
+            }
+        }
+
+        // Method for generating array  of time periods in chronological order Stu
+        // Generates a parallel array of time periods to be sorted in ascending order later Stu
+        private void GenerateTimePeriod()
+        {
+            int hour;
+            string period;
+
+            for (int i = 0; i < 24; i++)
+            {
+                hour = i % 12 + 1;
+                if (i < 11 || i > 22)
+                    period = "am";
+                else
+                    period = "pm";
+                timePeriodChrono[i] = (hour + period);
+                timePeriodAscend[i] = (hour + period);
+            }
+        }
+        // Method for clicking btnGetInteractions Nav
+        public void btnGetInteractions_Click(object sender, EventArgs e)
+        {
+            GenerateNeutrinoInteractions();
+            GenerateTimePeriod();
+            ListBoxSort.Items.Clear();
+            UpdateListBox(ListBoxInteractions, timePeriodChrono, neutrinoChrono);
+        }
+        // Method for clicking btnSortInteractions Nav
+        public void btnSortInteractions_Click(object sender, EventArgs e)
+        {
+            // Clearing ListBoxSort Nav
+            ListBoxSort.Items.Clear();
+            // Checking if ListBoxInteractions is showing an array Nav
+            if (ListBoxInteractions.Items.Count != 0)
+            {
+                // Sorting the array Nav
+                SortByNeutrinoInteraction();
+                // Showing the array in ListBoxSort Stu
+                UpdateListBox(ListBoxSort, timePeriodAscend, neutrinoAscend);
+            }
+            // If Neutrino Interactions have not been generated and shown, show message Nav
             else if(ListBoxInteractions == null)
             {
                 MessageBox.Show("Get Interactions First.");
                 return;
             }
-
         }
-
+        // Method for clicking btnSearch, searching the array for a specified value Nav
         private void btnSearch_Click(object sender, EventArgs e)
         {
             int midPoint;
             int lowerBound = 0;
-            int upperBound = neutrino.Length-1;
+            int upperBound = neutrinoChrono.Length - 1;
             int target;
             bool flag = false;
             if (!(Int32.TryParse(TextBoxSearch.Text, out target)))
@@ -92,28 +136,60 @@ namespace AstronomicalProcessing
                 MessageBox.Show("You must enter an integer");
                 return;
             }
-            while (!flag) // Check “<” or “<=”
+            while (!flag) // Check “<” or “<=” Nav
             {
 
-                ShowArray(lowerBound,upperBound);
-                // Find the mid-point
-
+<<<<<< 1.8
+>>> master
                 midPoint = (lowerBound + upperBound) / 2;
-                if(upperBound<lowerBound)
+                if (upperBound < lowerBound)
                 {
                     MessageBox.Show("Error Occured");
                     flag = true;
                 }
-                // Pause with a messagebox
-               // MessageBox.Show("Low:" + lowBound + " Mid:" + mid +
-             //  " High:" + highBound);
-               if (neutrino[midPoint] == target)
+                // Pause with a messagebox Nav
+                // MessageBox.Show("Low:" + lowBound + " Mid:" + mid + Nav
+                //  " High:" + highBound); Nav
+                if (neutrinoAscend[midPoint] == target)
                 {
-                    // Target has been found
-                    ListBoxResults.Items.Add("Found at position " + (midPoint+1));
+                    // Target has been found Nav
+                    ListBoxResults.Items.Add(timePeriodAscend[midPoint] + " " + neutrinoAscend[midPoint]);
+
+                    // Checking if value after also equal to target Stu
+                    int i = 1;
+                    bool checkAfter = false;
+
+                    while (!checkAfter)
+                    {
+                        if (midPoint + i < 24 && neutrinoAscend[midPoint + i] == target)
+                        {
+                            ListBoxResults.Items.Add(timePeriodAscend[midPoint + i] + " " + neutrinoAscend[midPoint + i]);
+                            i++;
+                        }
+                        // If the check shows that the value after is not the same, checkAfter becomes true and ends the loop Stu
+                        else
+                            checkAfter = true;
+                    }
+
+                    i = 1;
+                    bool checkBefore = false;
+
+                    // Checking if value before also equal to target Stu
+                    while (!checkBefore)
+                    {
+                        if (midPoint - i >= 0 && neutrinoAscend[midPoint - i] == target)
+                        {
+                            ListBoxResults.Items.Add(timePeriodAscend[midPoint - i] + " " + neutrinoAscend[midPoint - i]);
+                            i++;
+                        }
+                        // If the check shows that the value before is not the same, checkBefore becomes false and ends the loop Stu
+                        else
+                            checkBefore = true;
+                    }
+                    MessageBox.Show("Search is successful");
                     return;
                 }
-                else if (neutrino[midPoint] >= target)
+                else if (neutrinoAscend[midPoint] >= target)
                 {
                     upperBound = midPoint - 1;
                 }
@@ -124,16 +200,294 @@ namespace AstronomicalProcessing
             }
             MessageBox.Show("Not Found, try again.");
         }
-        // Method to display Array
-        private void ShowArray(int low, int high)
+
+        // Method for editing the array Stu
+        private void ButtonEdit_Click(object sender, EventArgs e)
         {
-            ListBoxResults.Items.Clear();
-          /* for (int i = low; i < high; i++)
+            // Takes the string as the time from TextBoxTime Stu
+            string time = TextBoxTime.Text;
+            // Takes the string as the new value from TextBoxNewValue and converts it to an integer Stu
+            int newValue = int.Parse(TextBoxNewValue.Text);
+            for (int i = 0; i < 24; i++)
             {
-                ListBoxResults.Items.Add(neutrino[i]);
-            }*/
+                // Iterating through the time periods in chronological order Stu
+                // Looking for the time that has been entered Stu
+                if (timePeriodChrono[i] == time)
+                {
+                    // Editing to the new value Stu
+                    neutrinoChrono[i] = newValue;
+                    // Immediatelly updating the ListBoxInteractions Stu
+                    UpdateListBox(ListBoxInteractions, timePeriodChrono, neutrinoChrono);
+                    // Coping the arrays so that the Ascending arrays match the Chronological arrays Stu
+                    Array.Copy(neutrinoChrono, neutrinoAscend, 24);
+                    Array.Copy(timePeriodChrono, timePeriodAscend, 24);
+                    
+                    // If there are items showing in the ListBoxSort...
+                    if(ListBoxSort.Items.Count != 0)
+                    {
+                        // it will sort new lists...
+                        SortByNeutrinoInteraction();
+                        // and update the ListBoxSort Stu
+                        UpdateListBox(ListBoxSort, timePeriodAscend, neutrinoAscend);
+                    }
+                }    
+            }
+        }
+        private void ButtonClearAll_Click(object sender, EventArgs e)
+        {
+            // Clearing all of the List Boxes, Text Boxes Stu, edited by Nav
+            ListBoxInteractions.Items.Clear();
+            ListBoxSort.Items.Clear();
+            ListBoxResults.Items.Clear();
+            ListBoxSearchResults.Items.Clear();
+            TextBoxNewValue.Clear();
+            TextBoxTime.Clear();
+            TextBoxSearch.Clear();
+            TextBox_SeqSearch.Clear();
+            TextBoxMidExtreme.Clear();
+            TextBoxMode.Clear();
+            TextBoxAverage.Clear();
+            TextBoxRange.Clear();
+            // Resetting all of the arrays to their original values of 0 and null Stu
+            for (int i = 0; i < 24; i++)
+            {
+                neutrinoChrono[i] = 0;
+                neutrinoAscend[i] = 0;
+                timePeriodChrono[i] = null;
+                timePeriodAscend[i] = null;
+            }
         }
 
+        private void TextBoxTime_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        // Button to calculate the mode of the data set Stu
+        private void ButtonMode_Click(object sender, EventArgs e)
+        {
+            // Frequency of the value being checked
+            int frequency = 1;
+            // Highest frequency of all the values checked so far
+            int maxFrequency = 1;
+            // String showed in the GUI
+            string mode = null;
+
+            // Iterating through neutrino interactions in ascending order Stu
+            for (int i = 0; i < 23; i++)
+            {
+                // Reset frequency to 1 for each new value
+                frequency = 1;
+                // If i is less than 23 (last value in the arrayj) and the current value is the same as the next one,
+                // repeat the while loop
+                // Else, break the loop
+                while (i < 23 && neutrinoAscend[i] == neutrinoAscend[i + 1])
+                {
+                    frequency++;
+                    i++;
+                }
+                // If the frequency of the value just checked is the same as the highest frequency of every value checked
+                // so far, then add the current value to the mode string
+                if (frequency == maxFrequency)
+                {
+                    mode = mode + ", " + neutrinoAscend[i].ToString();
+                }
+                // If the frequency of the value just checked is greater than the highest frequency of every value checked
+                // so far, overwrite the mode string with the current value
+                else if (frequency > maxFrequency)
+                {
+                    maxFrequency = frequency;
+                    mode = neutrinoAscend[i].ToString();
+                }
+                // If the highest frequency of any value is greater than 1
+                // then update the text box in the GUI
+                // else there is no mode
+            }
+            if (maxFrequency > 1)
+            {
+                TextBoxMode.Text = mode;
+            }
+            else
+            {
+                TextBoxMode.Text = "no mode";
+            }
+        }
+        // Button to calculate the mid-extreme of the data set Stu
+        private void ButtonMidExtreme_Click(object sender, EventArgs e)
+        {
+            // Highest value in the array + lowest value in the array divided by 2
+            int range = neutrinoAscend[23] + neutrinoAscend[0];
+            double midExtreme = range / 2;
+            // Update GUI
+            TextBoxMidExtreme.Text = midExtreme.ToString();
+        }
+        // Button to calculate the average of the data set Stu
+        private void ButtonAverage_Click(object sender, EventArgs e)
+        {
+            int sum = 0;
+            double average = 0;
+            // Iterate through neutrino interactions array
+            for (int i = 0; i < 24; i++)
+            {
+                // Adding all the values together
+                sum += neutrinoAscend[i];
+            }
+            // Divide by 2 and round to 2dp
+            average = Math.Round(sum / 24.0, 2);
+            // Update GUI
+            TextBoxAverage.Text = average.ToString();
+        }
+        // Button to calculate the range of the data set Stu
+        private void ButtonRange_Click(object sender, EventArgs e)
+        {
+            // The highest value neutrino interaction - the lowest value neutrino interaction
+            int range = neutrinoAscend[23] - neutrinoAscend[0];
+            // Update GUI
+            TextBoxRange.Text = range.ToString();
+        }
+
+
+
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        // Button for sequentially searching neutrinoChrono Stu + Edited by Nav
+        private void ButtonSequentialSearch_Click(object sender, EventArgs e)
+        {
+            bool found = false;
+            int target;
+            // Checking if the search input is an integer Stu
+            if (!(Int32.TryParse(TextBox_SeqSearch.Text, out target)))
+            {
+                // Checking if the search box contains any input stu
+                if (TextBox_SeqSearch.Text == "")
+                {
+                    // Empty search box error message Stu
+                    MessageBox.Show("Search box is empty\nEnter an integer");
+                }
+                else
+                {
+                    // Non integer search value error message Stu
+                    MessageBox.Show("You must enter an integer");
+                    return;
+                }
+            }
+            else
+            {
+                // Sequentially searching through neutrinoChrono Stu
+                for (int i = 0; i < 24; i++)
+                {
+                    if (neutrinoChrono[i] == target)
+                    {
+                        found = true;
+                        // Showing the search results Stu
+                        ListBoxSearchResults.Items.Add(timePeriodChrono[i] + " " + neutrinoChrono[i]);
+                    }
+                }
+                if (found)
+                {
+                    MessageBox.Show("Search is successful");
+                }
+                else
+                {
+                    // NeutrinoChrono does not contain the search value Stu
+                    MessageBox.Show("Not Found, try again.");
+                }
+            }
+        }
+        // Tool tip functions (Nav)
+        public void btnGetInteraction_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_btngetInteractions.SetToolTip(btnGetInteractions, "Click to Generate Neutrino Interactions per hour");
+        }
+        public void ListBoxInteractions_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_ListBoxInteractions.SetToolTip(ListBoxInteractions, "Shows the list of Neutrino Interactions per hour");
+        }
+        public void btnSortInteractions_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_btnSortInteractions.SetToolTip(btnSortInteractions, "Click to Sort the Neutrino Interactions per hour");
+        }
+        public void ListBoxSortInteractions_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_ListBoxSortInteractions.SetToolTip(ListBoxSort, "Shows the Sorted list of Neutrino Interactions per hour");
+        }
+        public void btnSerach_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_btnBinarySearch.SetToolTip(btnSearch, "Click to Binary Search the data from the list");
+        }
+        public void TextBoxSearch_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_txtBoxSearch.SetToolTip(TextBoxSearch, "Enter value to search from the list using Binary Search");
+        }
+        public void ListBoxResults_MouseHover(object sender, EventArgs e)
+        {
+           toolTip_ListBoxSearch.SetToolTip(ListBoxResults, "Shows Results of Binary search");
+        }
+        public void TextBoxSeqSearch_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_TextBoxSeqSearch.SetToolTip(TextBox_SeqSearch, "Enter value to search from the list using Sequential Search");
+        }
+        public void ListBoxSearchResults_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_ListBoxSearchResults.SetToolTip(ListBoxSearchResults, "Shows Results of Sequential search");
+        }
+
+        public void btnSequentialSerach_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_btnSequentialSearch.SetToolTip(ButtonSequentialSearch, "Click to Sequential Search the data from the list");
+        }
+        public void TextBoxTime_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_TextBoxTime.SetToolTip(TextBoxTime, "Enter the time(_am/pm)");
+        }
+        public void TextBoxNewValue_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_TextBoxNewValue.SetToolTip(TextBoxNewValue, "Enter the new value for Neutrino Interaction/hour");
+        }
+        public void ButtonEdit_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_ButtonEdit.SetToolTip(ButtonEdit, "Click to Edit the value");
+        }
+        public void ButtonMidExtreme_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_ButtonMidExtreme.SetToolTip(ButtonMidExtreme, "Click to Calculate Mid-Extreme");
+        }
+        public void TextBoxMidExtreme_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_TextBoxMidExtreme.SetToolTip(TextBoxMidExtreme, "Mid-Extreme Value");
+        }
+        public void ButtonMode_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_ButtonMode.SetToolTip(ButtonMode, "Click to Calculate Mode");
+        }
+        public void TextBoxMode_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_TextBoxMode.SetToolTip(TextBoxMode, "Mode Value");
+        }
+        public void ButtonRange_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_ButtonRange.SetToolTip(ButtonRange, "Click to Calculate Range");
+        }
+        public void TextBoxRange_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_TextBoxRange.SetToolTip(TextBoxRange, "Range Value");
+        }
+        public void ButtonAverage_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_ButtonAverage.SetToolTip(ButtonAverage, "Click to Calculate Average");
+        }
+        public void TextBoxAverage_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_TextBoxAverage.SetToolTip(TextBoxAverage, "Average Value");
+        }
+        public void ButtonClearAll_MouseHover(object sender, EventArgs e)
+        {
+            toolTip_ButtonClearAll.SetToolTip(ButtonClearAll, "Click to Clear All the data");
+        }
     }
 }
 
